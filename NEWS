@@ -1,7 +1,6 @@
 * `rbind.fill` and `rbind.fill.matrix` work consistently with matrices
   and data frames with zero rows (Peter Meilstrup)
 
->>>>>>> db7a5e8... (issue #79)
 Version 1.7
 ------------------------------------------------------------------------------
 

@@ -1,6 +1,32 @@
 Version 1.7.1.99
 ------------------------------------------------------------------------------
 
+* `d*ply` will now preserve factor levels input if `drop = FALSE` (#81)
+
+* `name_rows` provides a convenient way of saving and then restoring row names so that you can preserve them if you need to. (#61)
+
+* `*aply` now accepts 0-dimension arrays as outputs. (#88)
+
+* new `progress_time` function that estimates the amount of time remaining before the job is completed. (Thanks to Mike Lawrence, #78)
+
+* `colwise`, `numcolwise` and `catcolwise` now all accept additional arguments in .... (Thanks to Stavros Macrakis, #62)
+
+* `rbind.fill` now stops if inputs are not data frames. (Fixes #51)
+
+* `quickdf` correctly handles NA variable names. (Fixes #66. Thanks to Scott Kostyshak)
+
+* `*dply` now deals better with matrix results, converting them to data frames, rather than vectors. (Fixes #12)
+
+* new `join_all` function recursively joins a list of data frames. (Fixes #29)
+
+* `*_ply` now accepts `.parallel` argument to enable parallel processing. (Fixes #60)
+
+* Progress bars are disabled when using parallel plyr (Fixes #32)
+
+* `rbind.fill` now works consistently with 0 column data frames
+
+* `join` works correctly when there are no common rows (Fixes #74), or when one input has no rows (Fixes #48). It also consistently orders the columns: common columns, then x cols, then y cols (Fixes #40).
+
 * `split_indices`, which powers much internal splitting code (like `vaggregate`, `join` and `d*ply`) is about 2x faster.  It was already incredible fast ~0.2s for 1,000,000 obs, so this won't have much impact on overall performance
 
 * `a*ply`: 25x speedup when indexing array objects, 3x speedup when indexing data frames.  This should substantially reduce the overhead of using `a*ply`
@@ -15,8 +41,13 @@ Version 1.7.1.99
 
 * New `take` function for subsetting along an arbitrary dimension.
 
+* `*aply` functions now bind list mode results into a list-array (Peter Meilstrup)
+
 * `idata.frame`: Subsetting immutable data frames with `[.idf` is now
   faster (Peter Meilstrup)
+
+* `rbind.fill` and `rbind.fill.matrix` work consistently with matrices
+  and data frames with zero rows. Fixes #79. (Peter Meilstrup)
 
 Version 1.7.1
 ------------------------------------------------------------------------------

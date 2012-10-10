@@ -40,6 +40,11 @@ llply <- function(.data, .fun = NULL, ..., .progress = "none", .inform = FALSE, 
   n <- length(pieces)
   if (n == 0) return(list())
 
+  if (.parallel && .progress != "none") {
+    message("Progress disabled when using parallel plyr")
+    .progress <- "none"
+  }
+
   progress <- create_progress_bar(.progress)
   progress$init(n)
   on.exit(progress$term())
@@ -62,13 +67,7 @@ llply <- function(.data, .fun = NULL, ..., .progress = "none", .inform = FALSE, 
     res
   }
   if (.parallel) {
-    if (!require("foreach")) {
-      stop("foreach package required for parallel plyr operation",
-        call. = FALSE)
-    }
-    if (getDoParWorkers() == 1) {
-      warning("No parallel backend registered", call. = TRUE)
-    }
+    setup_parallel()
     result <- foreach(i = seq_len(n)) %dopar% do.ply(i)
   } else {
     result <- loop_apply(n, do.ply)

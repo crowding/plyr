@@ -26,3 +26,14 @@ test_that("Multiple names correctly changed", {
 
   expect_equal(names(y), c("d", "e", "f"))
 })
+
+test_that("Empty vectors and lists", {
+  expect_identical(rename(character(), c("c" = "f"), warn_missing = FALSE), character())
+  expect_identical(rename(list(), c("c" = "f"), warn_missing = FALSE), list())
+})
+
+test_that("Renaming lists", {
+  x <- list(a = 1, b = 2, c = 3)
+  y <- rename(x, c("c" = "f", "b" = "e", "a" = "d"))
+  expect_identical(y, list(d = 1, e = 2, f = 3))
+})

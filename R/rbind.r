@@ -10,7 +10,8 @@
 #' they were encountered. No checking is performed to ensure that each column
 #' is of consistent type in the inputs.
 #'
-#' @param ... input data frames to row bind together
+#' @param ... input data frames to row bind together.  The first argument can
+#'   be a list of data frames, in which case all other arguments are ignored.
 #' @keywords manip
 #' @family binding functions
 #' @return a single data frame
@@ -23,10 +24,15 @@ rbind.fill <- function(...) {
   if (is.list(dfs[[1]]) && !is.data.frame(dfs[[1]])) {
     dfs <- dfs[[1]]
   }
-  dfs <- Filter(Negate(empty), dfs)
 
   if (length(dfs) == 0) return()
   if (length(dfs) == 1) return(dfs[[1]])
+
+  # Check that all inputs are data frames
+  is_df <- vapply(dfs, is.data.frame, logical(1))
+  if (any(!is_df)) {
+    stop("All inputs to rbind.fill must be data.frames", call. = FALSE)
+  }
 
   # Calculate rows in output
   # Using .row_names_info directly is about 6 times faster than using nrow
@@ -35,13 +41,17 @@ rbind.fill <- function(...) {
 
   # Generate output template
   output <- output_template(dfs, nrows)
+  # Case of zero column inputs
+  if (length(output) == 0) {
+    return(as.data.frame(matrix(nrow = nrows, ncol = 0)))
+  }
 
-  # Compute start and end positions for each data frame
-  pos <- matrix(cumsum(rbind(1, rows - 1)), ncol = 2, byrow = TRUE)
+  # Compute start and length for each data frame
+  pos <- matrix(c(cumsum(rows) - rows + 1, rows), ncol = 2)
 
   # Copy inputs into output
   for(i in seq_along(rows)) {
-    rng <- pos[i, 1]:pos[i, 2]
+    rng <- seq(pos[i, 1], length = pos[i, 2])
     df <- dfs[[i]]
 
     for(var in names(df)) {

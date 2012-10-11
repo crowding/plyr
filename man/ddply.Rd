@@ -3,7 +3,8 @@
 \title{Split data frame, apply function, and return results in a data frame.}
 \usage{
   ddply(.data, .variables, .fun = NULL, ...,
-    .progress = "none", .drop = TRUE, .parallel = FALSE)
+    .progress = "none", .drop = TRUE, .parallel = FALSE,
+    .paropts = NULL)
 }
 \arguments{
   \item{.fun}{function to apply to each piece}
@@ -12,6 +13,17 @@
 
   \item{.progress}{name of the progress bar to use, see
   \code{\link{create_progress_bar}}}
+
+  \item{.paropts}{a list of additional options passed into
+  the \code{\link[foreach]{foreach}} function when parallel
+  computation is enabled.  This is important if (for
+  example) your code relies on external data or packages:
+  use the \code{.export} and \code{.packages} arguments to
+  supply them so that all cluster nodes have the correct
+  environment set up for computing.}
+
+  \item{.parallel}{if \code{TRUE}, apply function in
+  parallel, using parallel backend provided by foreach}
 
   \item{.data}{data frame to be processed}
 
@@ -22,9 +34,6 @@
   \item{.drop}{should combinations of variables that do not
   appear in the input data be preserved (FALSE) or dropped
   (TRUE, default)}
-
-  \item{.parallel}{if \code{TRUE}, apply function in
-  parallel, using parallel backend provided by foreach}
 }
 \value{
   A data frame, as described in the output section.
@@ -60,8 +69,8 @@ dfx   <- data.frame (group, time, age)
 # Note the use of the '.' function to allow
 # group and sex to be used without quoting
 ddply(dfx, .(group, sex), summarize,
-	mean <- round(mean(age), 2),
-	sd   <- round(sd(age), 2))
+ mean <- round(mean(age), 2),
+ sd   <- round(sd(age), 2))
 
 #   group sex  mean    sd
 # 1     A   F 35.89  8.53
@@ -97,11 +106,11 @@ base2 <- ddply(baseball, .(id), transform,
   \code{\link{tapply}} for similar functionality in the
   base package
 
-  Other data frame input: \code{\link{daply}},
-  \code{\link{dlply}}
+  Other data frame input: \code{\link{d_ply}},
+  \code{\link{daply}}, \code{\link{dlply}}
 
   Other data frame output: \code{\link{adply}},
-  \code{\link{ldply}}
+  \code{\link{ldply}}, \code{\link{mdply}}
 }
 \keyword{manip}
 

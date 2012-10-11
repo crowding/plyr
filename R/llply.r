@@ -1,6 +1,7 @@
 #' Split list, apply function, and return results in a list.
 #'
 #' For each element of a list, apply function, keeping results as a list.
+#'
 #' \code{llply} is equivalent to \code{\link{lapply}} except that it will
 #' preserve labels and can display a progress bar.
 #'
@@ -19,7 +20,8 @@
 #'
 #' llply(x, mean)
 #' llply(x, quantile, probs = 1:3/4)
-llply <- function(.data, .fun = NULL, ..., .progress = "none", .inform = FALSE, .parallel = FALSE) {
+llply <- function(.data, .fun = NULL, ..., .progress = "none", .inform = FALSE,
+                  .parallel = FALSE, .paropts = NULL) {
   if (is.null(.fun)) return(as.list(.data))
   if (is.character(.fun) || is.list(.fun)) .fun <- each(.fun)
   if (!is.function(.fun)) stop(".fun is not a function.")
@@ -68,7 +70,12 @@ llply <- function(.data, .fun = NULL, ..., .progress = "none", .inform = FALSE, 
   }
   if (.parallel) {
     setup_parallel()
-    result <- foreach(i = seq_len(n)) %dopar% do.ply(i)
+
+    i <- seq_len(n)
+    fe_call <- as.call(c(list(as.name("foreach"), i = i), .paropts))
+    fe <- eval(fe_call)
+
+    result <- fe %dopar% do.ply(i)
   } else {
     result <- loop_apply(n, do.ply)
   }
@@ -83,53 +90,4 @@ llply <- function(.data, .fun = NULL, ..., .progress = "none", .inform = FALSE, 
   }
 
   result
-}
-
-#' Split data frame, apply function, and return results in a list.
-#'
-#' For each subset of a data frame, apply function then combine results into a
-#' list. \code{dlply} is similar to \code{\link{by}} except that the results
-#' are returned in a different format.
-#'
-#' @template ply
-#' @template d-
-#' @template -l
-#' @export
-#' @examples
-#' linmod <- function(df) {
-#'   lm(rbi ~ year, data = mutate(df, year = year - min(year)))
-#' }
-#' models <- dlply(baseball, .(id), linmod)
-#' models[[1]]
-#'
-#' coef <- ldply(models, coef)
-#' with(coef, plot(`(Intercept)`, year))
-#' qual <- laply(models, function(mod) summary(mod)$r.squared)
-#' hist(qual)
-dlply <- function(.data, .variables, .fun = NULL, ..., .progress = "none", .drop = TRUE, .parallel = FALSE) {
-  .variables <- as.quoted(.variables)
-  pieces <- splitter_d(.data, .variables, drop = .drop)
-
-  llply(.data = pieces, .fun = .fun, ...,
-    .progress = .progress, .parallel = .parallel)
-}
-
-#' Split array, apply function, and return results in a list.
-#'
-#' For each slice of an array, apply function then combine results into a
-#' list. \code{alply} is somewhat similar to \code{\link{apply}} for cases
-#' where the results are not atomic.
-#'
-#' @template ply
-#' @template a-
-#' @template -l
-#' @export
-#' @examples
-#' alply(ozone, 3, quantile)
-#' alply(ozone, 3, function(x) table(round(x)))
-alply <- function(.data, .margins, .fun = NULL, ..., .expand = TRUE, .progress = "none", .parallel = FALSE) {
-  pieces <- splitter_a(.data, .margins, .expand)
-
-  llply(.data = pieces, .fun = .fun, ...,
-    .progress = .progress, .parallel = .parallel)
 }

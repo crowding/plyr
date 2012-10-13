@@ -3,20 +3,18 @@
 
 SEXP split_indices(SEXP group, SEXP n) {
   SEXP vec;
-  int i, j, k, nobs, nlevs;
+  int i, j, k;
 
-  PROTECT(group = AS_INTEGER(group));
-
-  nlevs = INTEGER(n)[0];
-  nobs = LENGTH(group);  
+  int nlevs = INTEGER(n)[0];
+  int nobs = LENGTH(group);  
+  int *pgroup = INTEGER(group);
   
-
   // Count number of cases in each group
   int counts[nlevs];
   for (i = 0; i < nlevs; i++)
     counts[i] = 0;
   for (i = 0; i < nobs; i++) {
-    j = INTEGER(group)[i] - 1;
+    j = pgroup[i] - 1;
     counts[j]++;
   }
 
@@ -31,11 +29,11 @@ SEXP split_indices(SEXP group, SEXP n) {
     counts[i] = 0;
   }
   for (i = 0; i < nobs; i++) {
-    j = INTEGER(group)[i] - 1;
+    j = pgroup[i] - 1;
     k = counts[j];
     INTEGER(VECTOR_ELT(vec, j))[k] = i + 1;
-    counts[j] += 1;
+    counts[j]++;
   }
-  UNPROTECT(2);
+  UNPROTECT(1);
   return vec;
 }

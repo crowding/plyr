@@ -14,3 +14,12 @@ test_that("summarise creates correct names", {
   # expect_that(names(df), equals("x", "y"))
 
 })
+
+test_that("summarise works with idata.frames", {
+  dfi <- idata.frame(mtcars)
+
+  dfo <- summarise(dfi, cyl, vs)
+
+  expect_equal(names(dfo), c("cyl", "vs"))
+  expect_equal(class(dfo$cyl), "numeric")
+})

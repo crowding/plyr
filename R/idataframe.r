@@ -99,6 +99,8 @@ as.data.frame.idf <- function(x, ...) {
   x$`_data`[x$`_rows`, x$`_cols`]
 }
 
+as.list.idf <- function(x) as.list(as.data.frame(x))
+
 "[[.idf" <- function(x, i) {
   if (is.numeric(i)) {
     i <- names(x)[i]

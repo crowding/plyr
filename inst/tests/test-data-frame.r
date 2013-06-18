@@ -53,7 +53,7 @@ test_that("label variables always preserved", {
   g <- function(df) if(df$x <= 102) sum(df$y)
 
   out1 <- ddply(d, "x", f) # This one works correctly
-  out2 <- ddply(d, "x", g) # This one doesn’t
+  out2 <- ddply(d, "x", g) # This one doesn't
 
   expect_that(names(out1), equals(names(out2)))
   expect_that(out1$x[1:2], equals(out2$x))
